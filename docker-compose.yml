@@ -16,12 +16,20 @@ services:
       
       # Supported formats (comma-separated)
       - ALLOWED_VIDEO_EXTENSIONS=mp4,avi,mov,mkv,flv,wmv,webm,m4v
-      - SUPPORTED_OUTPUT_FORMATS=mp4,avi,mov,mkv,webm
+      - SUPPORTED_VIDEO_OUTPUT_FORMATS=mp4,avi,mov,mkv,webm
+      - SUPPORTED_AUDIO_OUTPUT_FORMATS=mp3,wav,flac,aac,ogg,m4a,opus
       
       # Flask server settings
       - FLASK_HOST=0.0.0.0
       - FLASK_PORT=8080
       - FLASK_DEBUG=false
+      
+      # Gunicorn WSGI server settings
+      - GUNICORN_WORKERS=4           # Number of worker processes
+      - GUNICORN_WORKER_CLASS=sync   # Worker class (sync, gevent, eventlet)
+      - GUNICORN_TIMEOUT=120         # Worker timeout in seconds
+      - GUNICORN_MAX_REQUESTS=1000   # Restart workers after N requests
+      - GUNICORN_MAX_REQUESTS_JITTER=100  # Add randomness to max requests
     ports:
       - "${HOST_PORT:-8080}:${FLASK_PORT:-8080}"
     restart: on-failure
