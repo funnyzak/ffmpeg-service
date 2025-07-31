@@ -283,6 +283,8 @@ X-API-Key: your_secret_key_here
 ```
 
 ### Video Processing Example
+
+#### Using URL
 ```http
 POST /process
 Content-Type: application/json
@@ -302,15 +304,31 @@ X-API-Key: your_secret_key_here
 }
 ```
 
-Or upload a file:
+#### Using File Upload
 ```http
 POST /process
 Content-Type: multipart/form-data
+X-API-Key: your_secret_key_here
+```
 
+**Request Body:**
+```
 file: [video file]
 extract_info: true
 take_screenshots: true
 screenshot_timestamps: [10, 30, 60]
+```
+
+**Example with curl:**
+```bash
+curl -X POST http://localhost:8080/process \
+  -H "X-API-Key: your_secret_key_here" \
+  -F "file=@video.mp4" \
+  -F "extract_info=true" \
+  -F "take_screenshots=true" \
+  -F "screenshot_count=5" \
+  -F "convert_format=mp4" \
+  -F "convert_resolution=720p"
 ```
 
 **Response (Video):**
@@ -350,6 +368,8 @@ screenshot_timestamps: [10, 30, 60]
 ```
 
 ### Audio Processing Example
+
+#### Using URL
 ```http
 POST /process
 Content-Type: application/json
@@ -364,6 +384,31 @@ X-API-Key: your_secret_key_here
   "convert_format": "mp3",
   "convert_quality": "high"
 }
+```
+
+#### Using File Upload
+```http
+POST /process
+Content-Type: multipart/form-data
+X-API-Key: your_secret_key_here
+```
+
+**Request Body:**
+```
+file: [audio file]
+extract_info: true
+convert_format: mp3
+convert_quality: high
+```
+
+**Example with curl:**
+```bash
+curl -X POST http://localhost:8080/process \
+  -H "X-API-Key: your_secret_key_here" \
+  -F "file=@audio.wav" \
+  -F "extract_info=true" \
+  -F "convert_format=mp3" \
+  -F "convert_quality=high"
 ```
 
 **Response (Audio):**
@@ -400,11 +445,29 @@ Content-Type: application/json
 X-API-Key: your_secret_key_here
 ```
 
-**Video Request Body:**
+**Video Request Body (URL):**
 ```json
 {
   "video_url": "https://example.com/video.mp4"
 }
+```
+
+**Video Request Body (File Upload):**
+```http
+POST /info
+Content-Type: multipart/form-data
+X-API-Key: your_secret_key_here
+```
+
+```
+file: [video file]
+```
+
+**Example with curl:**
+```bash
+curl -X POST http://localhost:8080/info \
+  -H "X-API-Key: your_secret_key_here" \
+  -F "file=@video.mp4"
 ```
 
 **Video Response:**
@@ -426,11 +489,29 @@ X-API-Key: your_secret_key_here
 }
 ```
 
-**Audio Request Body:**
+**Audio Request Body (URL):**
 ```json
 {
   "media_url": "https://example.com/audio.mp3"
 }
+```
+
+**Audio Request Body (File Upload):**
+```http
+POST /info
+Content-Type: multipart/form-data
+X-API-Key: your_secret_key_here
+```
+
+```
+file: [audio file]
+```
+
+**Example with curl:**
+```bash
+curl -X POST http://localhost:8080/info \
+  -H "X-API-Key: your_secret_key_here" \
+  -F "file=@audio.mp3"
 ```
 
 **Audio Response:**
@@ -478,6 +559,7 @@ Downloads the processed file (screenshot or converted video).
 
 Alternatively, you can upload files directly using `multipart/form-data`:
 
+#### Video File Upload Example
 ```bash
 curl -X POST http://localhost:8080/process \
   -F "file=@video.mp4" \
@@ -486,6 +568,19 @@ curl -X POST http://localhost:8080/process \
   -F "convert_format=mp4" \
   -F "convert_resolution=720p"
 ```
+
+#### Audio File Upload Example
+```bash
+curl -X POST http://localhost:8080/process \
+  -F "file=@audio.mp3" \
+  -F "extract_info=true" \
+  -F "convert_format=wav" \
+  -F "convert_quality=high"
+```
+
+**Supported Audio Formats for Upload:**
+- MP3, WAV, FLAC, AAC, OGG, M4A, WMA, Opus
+- The service automatically detects audio files and processes them accordingly
 
 ## Error Responses
 
