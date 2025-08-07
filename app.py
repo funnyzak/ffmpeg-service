@@ -46,8 +46,12 @@ ALLOWED_AUDIO_EXTENSIONS = {
 }
 
 # Parse supported video output formats from environment
-video_output_fmt_str = os.getenv("SUPPORTED_VIDEO_OUTPUT_FORMATS", "mp4,avi,mov,mkv,webm")
-SUPPORTED_VIDEO_OUTPUT_FORMATS = {fmt.strip() for fmt in video_output_fmt_str.split(",")}
+video_output_fmt_str = os.getenv(
+    "SUPPORTED_VIDEO_OUTPUT_FORMATS", "mp4,avi,mov,mkv,webm"
+)
+SUPPORTED_VIDEO_OUTPUT_FORMATS = {
+    fmt.strip() for fmt in video_output_fmt_str.split(",")
+}
 
 # Parse supported audio output formats from environment
 audio_output_fmt_str = os.getenv(
@@ -717,7 +721,7 @@ def homepage():
     <title>FFmpeg Service</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
                          'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
@@ -726,13 +730,13 @@ def homepage():
             color: #1a202c;
             font-size: 16px;
         }
-        
+
         .container {
             max-width: 900px;
             margin: 0 auto;
             padding: 2rem 1rem;
         }
-        
+
         .card {
             background: white;
             border-radius: 8px;
@@ -741,7 +745,7 @@ def homepage():
             margin-bottom: 1.5rem;
             border: 1px solid #e2e8f0;
         }
-        
+
         h1 {
             color: #2d3748;
             text-align: center;
@@ -750,7 +754,7 @@ def homepage():
             font-weight: 600;
             letter-spacing: -0.025em;
         }
-        
+
         .subtitle {
             text-align: center;
             color: #718096;
@@ -758,7 +762,7 @@ def homepage():
             margin-bottom: 2rem;
             font-weight: 400;
         }
-        
+
         .description {
             background-color: #f7fafc;
             padding: 1.5rem;
@@ -768,18 +772,18 @@ def homepage():
             font-size: 1rem;
             line-height: 1.7;
         }
-        
+
         .description p {
             margin: 0;
         }
-        
+
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.25rem;
             margin: 2rem 0;
         }
-        
+
         .feature {
             background-color: #ffffff;
             padding: 1.5rem;
@@ -787,25 +791,25 @@ def homepage():
             border: 1px solid #e2e8f0;
             transition: box-shadow 0.2s ease;
         }
-        
+
         .feature:hover {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
-        
+
         .feature h3 {
             color: #2d3748;
             margin: 0 0 0.75rem 0;
             font-size: 1.125rem;
             font-weight: 600;
         }
-        
+
         .feature p {
             margin: 0;
             color: #4a5568;
             font-size: 0.9rem;
             line-height: 1.6;
         }
-        
+
         .api-info {
             background-color: #ebf8ff;
             padding: 1.5rem;
@@ -813,81 +817,81 @@ def homepage():
             margin: 1.5rem 0;
             border-left: 3px solid #3182ce;
         }
-        
+
         .api-info h3 {
             color: #2b6cb0;
             margin: 0 0 1rem 0;
             font-size: 1.125rem;
             font-weight: 600;
         }
-        
+
         .api-info ul {
             margin: 0;
             padding-left: 1.25rem;
             color: #2d3748;
         }
-        
+
         .api-info li {
             margin-bottom: 0.5rem;
             line-height: 1.5;
         }
-        
+
         .api-info strong {
             color: #2b6cb0;
             font-weight: 600;
         }
-        
+
         .footer {
             text-align: center;
             padding: 1.5rem 0 0 0;
             border-top: 1px solid #e2e8f0;
             color: #718096;
         }
-        
+
         .footer p {
             margin: 0;
             font-size: 0.9rem;
         }
-        
+
         .footer a {
             color: #3182ce;
             text-decoration: none;
             font-weight: 500;
         }
-        
+
         .footer a:hover {
             color: #2c5282;
             text-decoration: underline;
         }
-        
+
         .footer strong {
             color: #4a5568;
         }
-        
+
         .footer .separator {
             margin: 0 0.5rem;
             color: #cbd5e0;
         }
-        
+
         /* 响应式优化 */
         @media (max-width: 768px) {
             .container {
                 padding: 1rem 0.75rem;
             }
-            
+
             .card {
                 padding: 1.5rem;
             }
-            
+
             h1 {
                 font-size: 1.875rem;
             }
-            
+
             .features {
                 grid-template-columns: 1fr;
                 gap: 1rem;
             }
-            
+
             .footer {
                 font-size: 0.8rem;
             }
@@ -901,53 +905,65 @@ def homepage():
             <p class="subtitle">A Simple Media Processing Microservice</p>
 
             <div class="description">
-                <p>FFmpeg Service is a Flask-based microservice that provides powerful 
-                   media processing capabilities. The service supports both video and 
-                   audio file processing, including format conversion, metadata 
-                   extraction, screenshot generation (for videos), and offers 
+                <p>FFmpeg Service is a Flask-based microservice that provides
+                   powerful
+                   media processing capabilities. The service supports both
+                   video and
+                   audio file processing, including format conversion, metadata
+                   extraction, screenshot generation (for videos), and offers
                    developers an easy-to-use media processing API.</p>
             </div>
 
             <div class="features">
                 <div class="feature">
                     <h3>🎬 Video Processing</h3>
-                    <p>Supports conversion and processing of multiple video formats, 
-                       including popular formats such as MP4, AVI, MOV, MKV, and 
+                    <p>Supports conversion and processing of multiple video
+                       formats,
+                       including popular formats such as MP4, AVI, MOV, MKV,
+                       and
                        more.</p>
                 </div>
                 <div class="feature">
                     <h3>🎵 Audio Processing</h3>
-                    <p>Supports audio file processing including format conversion 
-                       for MP3, WAV, FLAC, AAC, OGG, M4A, and more audio 
+                    <p>Supports audio file processing including format
+                       conversion
+                       for MP3, WAV, FLAC, AAC, OGG, M4A, and more audio
                        formats.</p>
                 </div>
                 <div class="feature">
                     <h3>📸 Screenshot Feature</h3>
-                    <p>Automatically extracts video screenshots, supports specifying 
-                       timestamps or evenly distributed screenshots, making video 
+                    <p>Automatically extracts video screenshots, supports
+                       specifying
+                       timestamps or evenly distributed screenshots,
+                       making video
                        preview convenient.</p>
                 </div>
                 <div class="feature">
                     <h3>📊 Information Analysis</h3>
-                    <p>Extracts detailed metadata for both video and audio files, 
-                       including resolution, frame rate, duration, codec, sample 
+                    <p>Extracts detailed metadata for both video and audio
+                       files,
+                       including resolution, frame rate, duration, codec,
+                       sample
                        rate, and more.</p>
                 </div>
                 <div class="feature">
                     <h3>🔒 Secure Authentication</h3>
-                    <p>Supports API Key authentication to ensure service security 
-                       and reliability, suitable for production environments.</p>
+                    <p>Supports API Key authentication to ensure service
+                       security
+                       and reliability, suitable for production
+                       environments.</p>
                 </div>
             </div>
 
             <div class="api-info">
                 <h3>API Endpoints</h3>
                 <ul>
-                    <li><strong>POST /process</strong> - Main media processing 
+                    <li><strong>POST /process</strong> - Main media processing
                         endpoint (supports both video and audio)</li>
-                    <li><strong>POST /info</strong> - Get media information 
+                    <li><strong>POST /info</strong> - Get media information
                         (supports both video and audio)</li>
-                    <li><strong>GET /download/&lt;filename&gt;</strong> - Download 
+                    <li><strong>GET /download/&lt;filename&gt;</strong> -
+                        Download
                         processed files</li>
                     <li><strong>GET /health</strong> - Health check</li>
                 </ul>
@@ -957,10 +973,11 @@ def homepage():
         <div class="footer" style="text-align:center; margin-top:24px;">
             <p>
                 &copy; 2025
-                <a href="https://github.com/funnyzak/ffmpeg-service" 
+                <a href="https://github.com/funnyzak/ffmpeg-service"
                    target="_blank">FFmpeg Service</a>
-                &mdash; by <a href="https://github.com/funnyzak" 
-                   target="_blank">@funnyzak</a> <span class="separator">|</span> 
+                &mdash; by <a href="https://github.com/funnyzak"
+                   target="_blank">@funnyzak</a>
+                <span class="separator">|</span>
                 Built with Flask + FFmpeg
             </p>
         </div>
@@ -1003,9 +1020,8 @@ def process_media():
         # Get media file
         media_path = None
 
-        if "media_url" in data or "video_url" in data:
-            # Support both parameter names for backward compatibility
-            url = data.get("media_url") or data.get("video_url")
+        if "media_url" in data:
+            url = data.get("media_url")
             media_path = download_media_from_url(url)
             input_files.append(media_path)
         elif "file" in request.files:
@@ -1014,7 +1030,7 @@ def process_media():
             input_files.append(media_path)
         else:
             return create_response(
-                code=400, msg="No media URL or file provided"
+                code=400, msg="No media_url or file provided"
             ), 400
 
         # Create appropriate processor based on media type
@@ -1070,7 +1086,7 @@ def process_media():
         cleanup_temp_files(*input_files)
 
         return create_response(
-            msg="Processing completed successfully", data=result
+            msg="Media processing completed successfully", data=result
         )
 
     except ValueError as e:
@@ -1099,9 +1115,8 @@ def get_media_info():
             data = request.form.to_dict()
 
         # Get media file
-        if "media_url" in data or "video_url" in data:
-            # Support both parameter names for backward compatibility
-            url = data.get("media_url") or data.get("video_url")
+        if "media_url" in data:
+            url = data.get("media_url")
             media_path = download_media_from_url(url)
             temp_files.append(media_path)
         elif "file" in request.files:
@@ -1109,7 +1124,7 @@ def get_media_info():
             temp_files.append(media_path)
         else:
             return create_response(
-                code=400, msg="No media URL or file provided"
+                code=400, msg="No media_url or file provided"
             ), 400
 
         # Create appropriate processor based on media type
@@ -1118,16 +1133,19 @@ def get_media_info():
         # Extract media info
         if media_type == "video":
             info = processor.get_video_info()
-            message = "Video info extracted successfully"
         elif media_type == "audio":
             info = processor.get_audio_info()
-            message = "Audio info extracted successfully"
 
-        # Add media type to response
-        info["media_type"] = media_type
+        message = "Media information extracted successfully"
+
+        # Structure response data consistently
+        response_data = {
+            "media_type": media_type,
+            "info": info
+        }
 
         cleanup_temp_files(*temp_files)
-        return create_response(msg=message, data=info)
+        return create_response(msg=message, data=response_data)
 
     except ValueError as e:
         cleanup_temp_files(*temp_files)

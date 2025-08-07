@@ -223,8 +223,8 @@ API_KEYS=
 ### Protected Endpoints
 
 The following endpoints require authentication when `API_KEYS` is configured:
-- `POST /process` - Video processing
-- `POST /info` - Video information extraction
+- `POST /process` - Media processing (video and audio)
+- `POST /info` - Media information extraction (video and audio)
 
 ### Unprotected Endpoints
 
@@ -240,7 +240,7 @@ Include the API key in the `X-API-Key` header:
 curl -X POST http://localhost:8080/process \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_secret_key_here" \
-  -d '{"video_url": "https://example.com/video.mp4"}'
+  -d '{"media_url": "https://example.com/video.mp4"}'
 ```
 
 ### Error Responses
@@ -283,7 +283,7 @@ X-API-Key: your_secret_key_here
 **Request Body:**
 ```json
 {
-  "video_url": "https://example.com/video.mp4",
+  "media_url": "https://example.com/video.mp4",
   "extract_info": true,
   "take_screenshots": true,
   "screenshot_count": 5,
@@ -324,7 +324,7 @@ curl -X POST http://localhost:8080/process \
 ```json
 {
   "code": 0,
-  "msg": "Processing completed successfully",
+  "msg": "Media processing completed successfully",
   "data": {
     "media_type": "video",
     "info": {
@@ -404,7 +404,7 @@ curl -X POST http://localhost:8080/process \
 ```json
 {
   "code": 0,
-  "msg": "Processing completed successfully",
+  "msg": "Media processing completed successfully",
   "data": {
     "media_type": "audio",
     "info": {
@@ -437,7 +437,7 @@ X-API-Key: your_secret_key_here
 **Video Request Body (URL):**
 ```json
 {
-  "video_url": "https://example.com/video.mp4"
+  "media_url": "https://example.com/video.mp4"
 }
 ```
 
@@ -463,17 +463,19 @@ curl -X POST http://localhost:8080/info \
 ```json
 {
   "code": 0,
-  "msg": "Video info extracted successfully",
+  "msg": "Media information extracted successfully",
   "data": {
     "media_type": "video",
-    "duration": 120.5,
-    "size": 15728640,
-    "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
-    "codec_name": "h264",
-    "width": 1920,
-    "height": 1080,
-    "frame_rate": 30.0,
-    "bit_rate": 1048576
+    "info": {
+      "duration": 120.5,
+      "size": 15728640,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "codec_name": "h264",
+      "width": 1920,
+      "height": 1080,
+      "frame_rate": 30.0,
+      "bit_rate": 1048576
+    }
   }
 }
 ```
@@ -507,17 +509,19 @@ curl -X POST http://localhost:8080/info \
 ```json
 {
   "code": 0,
-  "msg": "Audio info extracted successfully",
+  "msg": "Media information extracted successfully",
   "data": {
     "media_type": "audio",
-    "duration": 180.5,
-    "size": 15728640,
-    "format_name": "mp3",
-    "codec_name": "mp3",
-    "sample_rate": 44100,
-    "channels": 2,
-    "bit_rate": 320000,
-    "channel_layout": "stereo"
+    "info": {
+      "duration": 180.5,
+      "size": 15728640,
+      "format_name": "mp3",
+      "codec_name": "mp3",
+      "sample_rate": 44100,
+      "channels": 2,
+      "bit_rate": 320000,
+      "channel_layout": "stereo"
+    }
   }
 }
 ```
@@ -535,8 +539,8 @@ Downloads the processed file (screenshot or converted video).
 
 | Parameter | Type | Description | Default |
 |-----------|------|-------------|---------|
-| `video_url` | string | URL to video file | - |
-| `extract_info` | boolean | Extract video metadata | true |
+| `media_url` | string | URL to media file (video or audio) | - |
+| `extract_info` | boolean | Extract media metadata | true |
 | `take_screenshots` | boolean | Capture screenshots | false |
 | `screenshot_timestamps` | array | Specific timestamps for screenshots (seconds) | - |
 | `screenshot_count` | integer | Number of evenly spaced screenshots | - |
@@ -749,7 +753,7 @@ The service supports flexible resolution settings for video conversion:
 curl -X POST http://localhost:8080/info \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_secret_key_here" \
-  -d '{"video_url": "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4"}'
+  -d '{"media_url": "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4"}'
 ```
 
 ### Extract Audio Information
@@ -766,7 +770,7 @@ curl -X POST http://localhost:8080/process \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_secret_key_here" \
   -d '{
-    "video_url": "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
+    "media_url": "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
     "take_screenshots": true,
     "screenshot_count": 5
   }'
@@ -778,7 +782,7 @@ curl -X POST http://localhost:8080/process \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_secret_key_here" \
   -d '{
-    "video_url": "https://sample-videos.com/zip/10/avi/SampleVideo_1280x720_1mb.avi",
+    "media_url": "https://sample-videos.com/zip/10/avi/SampleVideo_1280x720_1mb.avi",
     "convert_format": "mp4",
     "convert_quality": "high",
     "convert_resolution": "1080p"
@@ -803,7 +807,7 @@ curl -X POST http://localhost:8080/process \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_secret_key_here" \
   -d '{
-    "video_url": "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
+    "media_url": "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
     "extract_info": true,
     "take_screenshots": true,
     "screenshot_timestamps": [5, 15, 25],
