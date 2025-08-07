@@ -22,6 +22,7 @@ Build with the `linux/arm64`, `linux/amd64`, `linux/arm/v7` architectures.
 - **Health Monitoring**: Built-in health check endpoint
 - **API Key Authentication**: Optional API key authentication for secure access
 - **Error Handling**: Comprehensive error handling with appropriate HTTP status codes
+- **Structured Logging**: Comprehensive logging system with request tracing and performance monitoring
 - **Flexible Configuration**: All settings configurable via environment variables
 - **Multi-Architecture Support**: Supports ARM and x86 architectures
 
@@ -671,6 +672,8 @@ GUNICORN_MAX_REQUESTS=500
 | `GUNICORN_MAX_REQUESTS_JITTER` | Add randomness to max requests | `100` | `200` |
 | `API_KEYS` | Comma-separated API keys for authentication | `` (disabled) | `key1,key2,key3` |
 | `BASE_URL` | Base URL for full path URLs (optional) | `` (relative URLs) | `http://10.0.0.8:8080` |
+| `LOG_DIR` | Directory where log files are stored | `./logs` | `/tmp/logs` |
+| `LOG_LEVEL` | Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL | `INFO` | `DEBUG` |
 
 ### Configuration Examples
 
