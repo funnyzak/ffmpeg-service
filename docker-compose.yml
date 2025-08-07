@@ -30,6 +30,10 @@ services:
       - GUNICORN_TIMEOUT=120         # Worker timeout in seconds
       - GUNICORN_MAX_REQUESTS=1000   # Restart workers after N requests
       - GUNICORN_MAX_REQUESTS_JITTER=100  # Add randomness to max requests
+
+      # Base URL configuration for full path URLs
+      # - BASE_URL=http://localhost:8080
+
     ports:
       - "${HOST_PORT:-8080}:${FLASK_PORT:-8080}"
     restart: on-failure

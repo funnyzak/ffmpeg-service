@@ -102,6 +102,9 @@ services:
       
       # API Key authentication (optional)
       - API_KEYS=your_secret_key_here
+      
+      # Base URL for full path URLs (optional)
+      # - BASE_URL=http://your-domain.com:8080
     ports:
       - "${HOST_PORT:-8080}:${FLASK_PORT:-8080}"
     restart: on-failure
@@ -354,6 +357,9 @@ curl -X POST http://localhost:8080/process \
     }
   }
 }
+```
+
+> **Note**: When `BASE_URL` is configured, the `url` fields will contain full URLs instead of relative paths. For example: `"url": "http://10.0.0.8:8080/download/converted_def456.mp4"`
 ```
 
 ### Audio Processing Example
@@ -664,6 +670,7 @@ GUNICORN_MAX_REQUESTS=500
 | `GUNICORN_MAX_REQUESTS` | Restart workers after N requests | `1000` | `2000` |
 | `GUNICORN_MAX_REQUESTS_JITTER` | Add randomness to max requests | `100` | `200` |
 | `API_KEYS` | Comma-separated API keys for authentication | `` (disabled) | `key1,key2,key3` |
+| `BASE_URL` | Base URL for full path URLs (optional) | `` (relative URLs) | `http://10.0.0.8:8080` |
 
 ### Configuration Examples
 
@@ -826,7 +833,6 @@ curl -X POST http://localhost:8080/process \
 - **Memory Usage**: Depends on video size and processing operations
 - **Cleanup Frequency**: Configurable via `CLEANUP_INTERVAL_MINUTES`
 - **Supported Formats**: Configurable via environment variables
-
 
 ## Troubleshooting
 

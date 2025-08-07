@@ -69,6 +69,9 @@ API_KEYS = (
     else set()
 )
 
+# Base URL configuration for full path URLs
+BASE_URL = os.getenv("BASE_URL", "").rstrip("/")  # Remove trailing slash if present
+
 
 def require_api_key(f):
     """Decorator to require API key authentication"""
@@ -214,7 +217,7 @@ class AudioProcessor:
                 "file_path": output_path,
                 "file_size": file_size,
                 "format": output_format,
-                "url": f"/download/{output_filename}",
+                "url": create_download_url(output_filename),
             }
 
         except Exception as e:
@@ -364,7 +367,7 @@ class VideoProcessor:
             "filename": output_filename,
             "file_path": output_path,
             "file_size": file_size,
-            "url": f"/download/{output_filename}",
+            "url": create_download_url(output_filename),
         }
 
     def convert_format(self, output_format, quality="medium", resolution=None):
@@ -417,7 +420,7 @@ class VideoProcessor:
                 "file_size": file_size,
                 "format": output_format,
                 "resolution": resolution if resolution else "original",
-                "url": f"/download/{output_filename}",
+                "url": create_download_url(output_filename),
             }
 
         except Exception as e:
@@ -653,6 +656,14 @@ def _parse_list(value):
             # Fall back to comma-separated values
             return [float(x.strip()) for x in value.split(",") if x.strip()]
     return None
+
+
+def create_download_url(filename):
+    """Create download URL - return full URL if BASE_URL is set, otherwise relative URL"""
+    relative_url = f"/download/{filename}"
+    if BASE_URL:
+        return f"{BASE_URL}{relative_url}"
+    return relative_url
 
 
 def create_response(code=0, msg="", data=None):
