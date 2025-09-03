@@ -1,6 +1,6 @@
 # FFmpeg Media Processing Service
 
-[![Commit activity](https://img.shields.io/github/commit-activity/m/tw93/Pake?style=flat-square)](https://hub.docker.com/r/funnyzak/ffmpeg-service/)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/funnyzak/ffmpeg-service?style=flat-square)](https://hub.docker.com/r/funnyzak/ffmpeg-service/)
 [![Docker Tags](https://img.shields.io/docker/v/funnyzak/ffmpeg-service?sort=semver&style=flat-square)](https://hub.docker.com/r/funnyzak/ffmpeg-service/)
 [![Image Size](https://img.shields.io/docker/image-size/funnyzak/ffmpeg-service)](https://hub.docker.com/r/funnyzak/ffmpeg-service/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/funnyzak/ffmpeg-service.svg?style=flat-square)](https://hub.docker.com/r/funnyzak/ffmpeg-service/)
