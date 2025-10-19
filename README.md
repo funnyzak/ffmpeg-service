@@ -12,8 +12,9 @@ Build with the `linux/arm64`, `linux/amd64`, `linux/arm/v7` architectures.
 
 ## Features
 
-- **Video Processing**: Extract metadata, capture screenshots, convert formats, and adjust resolution
+- **Video Processing**: Extract metadata, capture screenshots, convert formats, adjust resolution, and extract audio
 - **Audio Processing**: Extract metadata and convert between audio formats
+- **Audio Extraction**: Extract audio tracks from video files with format and quality control (video files only)
 - **Format Conversion**: Convert videos between popular formats (MP4, AVI, MOV, MKV, WebM) and audio between formats (MP3, WAV, FLAC, AAC, OGG, M4A, Opus)
 - **Resolution Control**: Convert videos to specific resolutions (720p, 1080p, 4K, custom dimensions)
 - **Batch Processing**: Combine multiple operations in a single API call
@@ -293,7 +294,10 @@ X-API-Key: your_secret_key_here
   "screenshot_count": 5,
   "convert_format": "mp4",
   "convert_quality": "medium",
-  "convert_resolution": "720p"
+  "convert_resolution": "720p",
+  "extract_audio": true,
+  "audio_format": "mp3",
+  "audio_quality": "high"
 }
 ```
 
@@ -349,6 +353,12 @@ curl -X POST http://localhost:8080/process \
         "url": "/download/screenshot_abc123_24.jpg"
       }
     ],
+    "extracted_audio": {
+      "filename": "extracted_audio_ghi789.mp3",
+      "file_size": 3145728,
+      "format": "mp3",
+      "url": "/download/extracted_audio_ghi789.mp3"
+    },
     "conversion": {
       "filename": "converted_def456.mp4",
       "file_size": 12582912,
@@ -548,12 +558,15 @@ Downloads the processed file (screenshot or converted video).
 |-----------|------|-------------|---------|
 | `media_url` | string | URL to media file (video or audio) | - |
 | `extract_info` | boolean | Extract media metadata | true |
-| `take_screenshots` | boolean | Capture screenshots | false |
+| `take_screenshots` | boolean | Capture screenshots (video only) | false |
 | `screenshot_timestamps` | array | Specific timestamps for screenshots (seconds) | - |
 | `screenshot_count` | integer | Number of evenly spaced screenshots | - |
 | `convert_format` | string | Target format (video: mp4, avi, mov, mkv, webm; audio: mp3, wav, flac, aac, ogg, m4a, opus) | - |
 | `convert_quality` | string | Conversion quality (low, medium, high) | medium |
 | `convert_resolution` | string | Target resolution (720p, 1080p, 1920x1080, etc.) | original |
+| `extract_audio` | boolean | Extract audio from video (video only) | false |
+| `audio_format` | string | Audio format for extraction (mp3, wav, flac, aac, ogg, m4a, opus) | - |
+| `audio_quality` | string | Audio quality (low, medium, high) | medium |
 
 ### File Upload
 
@@ -811,6 +824,19 @@ curl -X POST http://localhost:8080/process \
   }'
 ```
 
+### Extract Audio from Video
+```bash
+curl -X POST http://localhost:8080/process \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_secret_key_here" \
+  -d '{
+    "media_url": "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
+    "extract_audio": true,
+    "audio_format": "mp3",
+    "audio_quality": "high"
+  }'
+```
+
 ### Combined Processing
 ```bash
 curl -X POST http://localhost:8080/process \
@@ -821,6 +847,9 @@ curl -X POST http://localhost:8080/process \
     "extract_info": true,
     "take_screenshots": true,
     "screenshot_timestamps": [5, 15, 25],
+    "extract_audio": true,
+    "audio_format": "mp3",
+    "audio_quality": "high",
     "convert_format": "webm",
     "convert_quality": "medium",
     "convert_resolution": "720p"
@@ -879,6 +908,12 @@ curl -X POST http://localhost:8080/process \
    - Use supported formats: `720p`, `1080p`, `1920x1080`, `1280:720`
    - Check resolution limits (max: 7680x4320)
    - For aspect ratio preservation, use single dimension: `720`
+
+9. **Audio Extraction Issues**
+   - Audio extraction only works with video files
+   - Ensure the video file contains an audio track
+   - Some audio formats may require specific FFmpeg codecs (libmp3lame for MP3, libopus for Opus, etc.)
+   - Check FFmpeg installation includes required audio codecs
 
 ### Logs
 

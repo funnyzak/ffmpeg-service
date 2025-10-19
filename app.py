@@ -11,14 +11,12 @@ A Flask-based microservice for video processing using FFmpeg
 
 import os
 import json
-import re
 import uuid
 import subprocess
 import time
 import threading
 import logging
 import logging.handlers
-from datetime import datetime
 from urllib.parse import urlparse
 import requests
 from flask import Flask, request, jsonify, send_file
@@ -72,7 +70,8 @@ def setup_logging():
     root_logger.addHandler(file_handler)
     
     # Suppress Flask and Werkzeug logs in production
-    if os.getenv("FLASK_DEBUG", "false").lower() not in ("true", "1", "yes", "on"):
+    debug_mode = os.getenv("FLASK_DEBUG", "false").lower()
+    if debug_mode not in ("true", "1", "yes", "on"):
         logging.getLogger("werkzeug").setLevel(logging.WARNING)
         logging.getLogger("gunicorn").setLevel(logging.WARNING)
 
@@ -146,21 +145,27 @@ def log_startup_info():
     logger.info(f"Gunicorn worker class: {os.getenv('GUNICORN_WORKER_CLASS', 'sync')}")
     logger.info(f"Gunicorn timeout: {os.getenv('GUNICORN_TIMEOUT', '120')}s")
     logger.info(f"Gunicorn max requests: {os.getenv('GUNICORN_MAX_REQUESTS', '1000')}")
-    logger.info(f"Gunicorn max requests jitter: {os.getenv('GUNICORN_MAX_REQUESTS_JITTER', '100')}")
-    logger.info(f"Gunicorn bind: {os.getenv('GUNICORN_BIND', '0.0.0.0:8080')}")
-    logger.info(f"Gunicorn workers: {os.getenv('GUNICORN_WORKERS', '4')}")
+    max_requests_jitter = os.getenv('GUNICORN_MAX_REQUESTS_JITTER', '100')
+    logger.info(f"Gunicorn max requests jitter: {max_requests_jitter}")
+    gunicorn_bind = os.getenv('GUNICORN_BIND', '0.0.0.0:8080')
+    logger.info(f"Gunicorn bind: {gunicorn_bind}")
+    gunicorn_workers = os.getenv('GUNICORN_WORKERS', '4')
+    logger.info(f"Gunicorn workers: {gunicorn_workers}")
     # Log configuration
     logger.info("Configuration loaded:")
     logger.info(f"  TEMP_DIR: {TEMP_DIR}")
-    logger.info(f"  MAX_FILE_SIZE: {MAX_FILE_SIZE} bytes ({MAX_FILE_SIZE/1024/1024:.1f} MB)")
+    max_file_size_mb = MAX_FILE_SIZE / 1024 / 1024
+    logger.info(f"  MAX_FILE_SIZE: {MAX_FILE_SIZE} bytes ({max_file_size_mb:.1f} MB)")
     logger.info(f"  FILE_RETENTION_HOURS: {FILE_RETENTION_HOURS}")
     logger.info(f"  CLEANUP_INTERVAL_MINUTES: {CLEANUP_INTERVAL_MINUTES}")
     logger.info(f"  ALLOWED_VIDEO_EXTENSIONS: {ALLOWED_VIDEO_EXTENSIONS}")
     logger.info(f"  ALLOWED_AUDIO_EXTENSIONS: {ALLOWED_AUDIO_EXTENSIONS}")
     logger.info(f"  SUPPORTED_VIDEO_OUTPUT_FORMATS: {SUPPORTED_VIDEO_OUTPUT_FORMATS}")
     logger.info(f"  SUPPORTED_AUDIO_OUTPUT_FORMATS: {SUPPORTED_AUDIO_OUTPUT_FORMATS}")
-    logger.info(f"  API_KEYS configured: {len(API_KEYS) > 0}")
-    logger.info(f"  BASE_URL: {BASE_URL or 'Not set'}")
+    api_keys_configured = len(API_KEYS) > 0
+    logger.info(f"  API_KEYS configured: {api_keys_configured}")
+    base_url_status = BASE_URL or 'Not set'
+    logger.info(f"  BASE_URL: {base_url_status}")
 
 log_startup_info()
 
@@ -619,6 +624,104 @@ class VideoProcessor:
         except Exception as e:
             logger.error(f"Video format conversion failed for {self.video_path}: {str(e)}")
             raise Exception(f"Format conversion failed: {str(e)}")
+
+    def extract_audio(self, output_format, quality="medium"):
+        """Extract audio from video file"""
+        try:
+            logger.info(f"Extracting audio from video to {output_format} format with {quality} quality")
+            
+            if output_format not in SUPPORTED_AUDIO_OUTPUT_FORMATS:
+                logger.error(f"Unsupported audio output format: {output_format}")
+                raise ValueError(
+                    f"Unsupported audio output format. Supported: "
+                    f"{SUPPORTED_AUDIO_OUTPUT_FORMATS}"
+                )
+
+            output_filename = f"extracted_audio_{uuid.uuid4().hex}.{output_format}"
+            output_path = os.path.join(TEMP_DIR, output_filename)
+
+            # Quality settings for different audio formats
+            quality_settings = {
+                "mp3": {
+                    "low": ["-b:a", "128k"],
+                    "medium": ["-b:a", "192k"],
+                    "high": ["-b:a", "320k"],
+                },
+                "aac": {
+                    "low": ["-b:a", "128k"],
+                    "medium": ["-b:a", "192k"],
+                    "high": ["-b:a", "256k"],
+                },
+                "ogg": {
+                    "low": ["-q:a", "3"],
+                    "medium": ["-q:a", "6"],
+                    "high": ["-q:a", "9"],
+                },
+                "opus": {
+                    "low": ["-b:a", "96k"],
+                    "medium": ["-b:a", "128k"],
+                    "high": ["-b:a", "192k"],
+                },
+            }
+
+            # Base command for audio extraction
+            cmd = [
+                "ffmpeg",
+                "-i", self.video_path,
+                "-vn",  # No video
+            ]
+            
+            # Set appropriate codec for each format
+            if output_format == "mp3":
+                cmd.extend(["-acodec", "libmp3lame"])
+            elif output_format == "aac":
+                cmd.extend(["-acodec", "aac"])
+            elif output_format == "ogg":
+                cmd.extend(["-acodec", "libvorbis"])
+            elif output_format == "opus":
+                cmd.extend(["-acodec", "libopus"])
+            elif output_format == "flac":
+                cmd.extend(["-acodec", "flac"])
+            elif output_format == "wav":
+                cmd.extend(["-acodec", "pcm_s16le"])
+            elif output_format == "m4a":
+                cmd.extend(["-acodec", "aac"])
+            else:
+                # Default to MP3
+                cmd.extend(["-acodec", "libmp3lame"])
+
+            # Add quality settings if available for the format
+            if output_format in quality_settings:
+                settings = quality_settings[output_format]
+                cmd.extend(settings.get(quality, settings["medium"]))
+            else:
+                # Default settings for other formats
+                cmd.extend(["-b:a", "192k"])
+
+            # Add output path
+            cmd.extend(["-y", output_path])
+
+            logger.debug(f"Running ffmpeg audio extraction command: {' '.join(cmd)}")
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                logger.error(f"Audio extraction failed: {result.stderr}")
+                raise Exception(f"Audio extraction failed: {result.stderr}")
+
+            # Get output file info
+            file_size = os.path.getsize(output_path)
+            logger.info(f"Audio extraction completed: {output_filename} ({file_size} bytes)")
+
+            return {
+                "filename": output_filename,
+                "file_path": output_path,
+                "file_size": file_size,
+                "format": output_format,
+                "url": create_download_url(output_filename),
+            }
+
+        except Exception as e:
+            logger.error(f"Audio extraction failed for {self.video_path}: {str(e)}")
+            raise Exception(f"Audio extraction failed: {str(e)}")
 
     def _parse_resolution(self, resolution):
         """Parse and validate resolution parameter"""
@@ -1269,10 +1372,15 @@ def process_media():
         convert_format = data.get("convert_format")
         convert_quality = data.get("convert_quality", "medium")
         convert_resolution = data.get("convert_resolution")
+        extract_audio = _parse_bool(data.get("extract_audio", False))
+        audio_format = data.get("audio_format")
+        audio_quality = data.get("audio_quality", "medium")
 
         logger.info(f"Request {request_id}: Processing options - "
                    f"extract_info={extract_info}, take_screenshots={take_screenshots}, "
-                   f"convert_format={convert_format}, quality={convert_quality}")
+                   f"convert_format={convert_format}, quality={convert_quality}, "
+                   f"extract_audio={extract_audio}, audio_format={audio_format}, "
+                   f"audio_quality={audio_quality}")
 
         # Get media file
         media_path = None
@@ -1319,6 +1427,31 @@ def process_media():
             logger.warning(f"Request {request_id}: Screenshots requested for audio file")
             result["warning"] = "Screenshots not supported for audio files"
 
+        # Extract audio (only for video)
+        if extract_audio and media_type == "video":
+            if not audio_format:
+                logger.warning(f"Request {request_id}: Audio extraction requested "
+                              f"but no audio_format specified")
+                result["warning"] = ("Audio extraction requested but no "
+                                    "audio_format specified")
+            else:
+                logger.info(f"Request {request_id}: Extracting audio to "
+                           f"{audio_format} format")
+                try:
+                    audio_result = processor.extract_audio(audio_format, audio_quality)
+                    result["extracted_audio"] = audio_result
+                    # Keep extracted audio file for download
+                    output_files.append(audio_result["file_path"])
+                except Exception as e:
+                    logger.error(f"Request {request_id}: Audio extraction failed - "
+                               f"{str(e)}")
+                    result["audio_extraction_error"] = str(e)
+        elif extract_audio and media_type == "audio":
+            logger.warning(f"Request {request_id}: Audio extraction requested "
+                          f"for audio file")
+            result["warning"] = ("Audio extraction not supported for audio files "
+                               "(already audio)")
+
         # Convert format
         if convert_format:
             logger.info(f"Request {request_id}: Converting format to {convert_format}")
@@ -1338,7 +1471,8 @@ def process_media():
                     SUPPORTED_VIDEO_OUTPUT_FORMATS if media_type == "video"
                     else SUPPORTED_AUDIO_OUTPUT_FORMATS
                 )
-                logger.error(f"Request {request_id}: Unsupported format '{convert_format}' for {media_type}")
+                logger.error(f"Request {request_id}: Unsupported format "
+                            f"'{convert_format}' for {media_type}")
                 raise ValueError(
                     f"Unsupported format '{convert_format}' for {media_type}. "
                     f"Supported formats: {supported_formats}"
@@ -1352,7 +1486,8 @@ def process_media():
         cleanup_temp_files(*input_files)
 
         response_time = (time.time() - start_time) * 1000
-        logger.info(f"Request {request_id}: Processing completed successfully in {response_time:.1f}ms")
+        logger.info(f"Request {request_id}: Processing completed successfully "
+                   f"in {response_time:.1f}ms")
         log_response_info(request_id, 200, response_time, result)
 
         return create_response(
